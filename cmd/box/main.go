@@ -25,7 +25,7 @@ func main() {
 	cgroupPath := parentPath + "/test"
 	os.MkdirAll(cgroupPath, 0755)
 
-	// задаем лимиты ресурсов для этой cgroup 
+	// задаем лимиты ресурсов для этой cgroup (test)
 	os.WriteFile(cgroupPath+"/cpu.max", []byte("50000 100000"), 0644)
 	os.WriteFile(cgroupPath+"/memory.max", []byte("268435456"), 0644)
 
