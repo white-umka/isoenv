@@ -2,12 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+
+	//"os/user"
 	"strconv"
+	"syscall"
 )
 
 const (
-	CPU_LIMIT = 50 // 50%
+	CPU_LIMIT    = 50  // 50%
 	MEMORY_LIMIT = 256 // 256mb
 )
 
@@ -21,7 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// создаем cgroup 
+	// создаем cgroup
 	cgroupPath := parentPath + "/test"
 	os.MkdirAll(cgroupPath, 0755)
 
@@ -29,8 +33,44 @@ func main() {
 	os.WriteFile(cgroupPath+"/cpu.max", []byte("50000 100000"), 0644)
 	os.WriteFile(cgroupPath+"/memory.max", []byte("268435456"), 0644)
 
-	pid := os.Getpid() // получаем id процесса 	
+	pid := os.Getpid()                                                        // получаем id процесса
 	os.WriteFile(cgroupPath+"/cgroup.procs", []byte(strconv.Itoa(pid)), 0644) // применяем лимиты
 
+	// получаем имя юзера
+	username := os.Getenv("SUDO_USER")
+
+	// chroot (home/username/isoenv/rootfs/alpine теперь является корневым каталогом "/")
+	if err = syscall.Chroot("/home/" + username + "/isoenv/rootfs/alpine"); err != nil {
+		log.Fatal(err)
+	}
+
+	// заходим в новый каталог (аналог cd)
+	if err = syscall.Chdir("/"); err != nil {
+		log.Fatal(err)
+	}
+
+	// читаем новый корень (логируем)
+	files, err := os.ReadDir("/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("содержимое корня /")
+	for _, file := range files {
+		fmt.Println(file.Name())
+	}
+
+	// export PATH=/bin (чтобы рабоали ls, mkdir и т.д.)
+	if err = os.Setenv("PATH", "/bin"); err != nil {
+		log.Fatal(err)
+	}
+
+	// запускаем /bin/sh (Environ передаст переменные окружения в формате key:value)
+	if err := syscall.Exec("/bin/sh", []string{"/bin/sh"}, os.Environ()); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(username)
+	fmt.Println(pid)
 	fmt.Println("процесс успешно изолирован!")
 }
