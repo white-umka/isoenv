@@ -65,6 +65,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// создаем симлинк (псевдоним) для clear
+	if err = os.Symlink("/bin/busybox", "/bin/clear"); err != nil {
+		fmt.Println("не удалось создать линк для clear:\n", err)
+	} else {fmt.Println("симлинк на clear создан успешно!")}
+
 	// запускаем /bin/sh (Environ передаст переменные окружения в формате key:value)
 	if err := syscall.Exec("/bin/sh", []string{"/bin/sh"}, os.Environ()); err != nil {
 		log.Fatal(err)
