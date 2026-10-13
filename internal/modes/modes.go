@@ -11,9 +11,9 @@ func ChoosingMode() {
 	mode := flags.ParseFlags()
 	switch mode {
 		case true:
-			fmt.Println("true")
+			fmt.Println("mode: child")
 		case false:
-			fmt.Println("false")
+			fmt.Println("mode: parent")
 		default:
 			fmt.Println("произошла ошибка при работе с флагами")
 			os.Exit(1)

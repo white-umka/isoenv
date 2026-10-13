@@ -5,9 +5,9 @@ import (
 )
 
 func ParseFlags() bool {
-	mode := flag.Bool("parent", false, "parent mode: default - false")
-	// вызываем без флага - child
-	// вызываем с флагом - parent
+	mode := flag.Bool("child", false, "child mode: default - true")
+	// вызываем без флага - parent
+	// вызываем с флагом - child
 	
 	flag.Parse()
 	
