@@ -19,3 +19,4 @@ func ChoosingMode() {
 			os.Exit(1)
 	}
 }
+
